@@ -1,8 +1,8 @@
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from rest_framework.views import status
-from .models import Songs
-from .serializers import SongsSerializer
+from .models import Orders
+from .serializers import OrdersSerializer
 
 # tests for views
 
