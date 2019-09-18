@@ -13,6 +13,31 @@ class ListOrdersView(generics.ListAPIView):
     queryset = Orders.objects.all()
     serializer_class = OrdersSerializer
 
+
+class OrderView(generics.ListAPIView):
+
+    """
+    GET and POST orders at /order
+    """
+
+    def get(self, request):
+        orders = Orders.objects.all()
+        serializer_class = OrdersSerializer
+        return Response({"orders": orders})
+
+    def post(self, request):
+
+        order = request.data.get('order')
+        # Create an article from the above data
+        serializer_class = OrdersSerializer(data=order)
+        if serializer_class.is_valid(raise_exception=True):
+            order_saved = serializer.save()
+        return Response({"success": "Order '{}' created successfully"
+            .format(order_saved.title)})
+
+
+
+
 @api_view(['POST'])
 def AddOrderView(request):
 

@@ -12,7 +12,7 @@ class OrdersSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("user_id")
+        fields = ("user_id", "email_id", "name", "phone_no", "address")
 
 class MedicineSerializer(serializers.ModelSerializer):
     class Meta:
