@@ -1,9 +1,12 @@
 from rest_framework import generics
+
 from .models import Orders, User, Medicine
 from .serializers import OrdersSerializer, UserSerializer, MedicineSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
+
 
 
 class ListOrdersView(generics.ListAPIView):
@@ -14,7 +17,7 @@ class ListOrdersView(generics.ListAPIView):
     serializer_class = OrdersSerializer
 
 
-class OrderView(generics.ListAPIView):
+class OrderView(APIView):
 
     """
     GET and POST orders at /order
@@ -22,18 +25,18 @@ class OrderView(generics.ListAPIView):
 
     def get(self, request):
         orders = Orders.objects.all()
-        serializer_class = OrdersSerializer
-        return Response({"orders": orders})
-
+        serializer_class = OrdersSerializer(orders, many=True)
+        return Response(serializer_class.data)
+        #return orders
     def post(self, request):
 
-        order = request.data.get('order')
+        order = request.data
         # Create an article from the above data
         serializer_class = OrdersSerializer(data=order)
         if serializer_class.is_valid(raise_exception=True):
-            order_saved = serializer.save()
+            order_saved = serializer_class.save()
         return Response({"success": "Order '{}' created successfully"
-            .format(order_saved.title)})
+            .format(order_saved.order_id)})
 
 
 
