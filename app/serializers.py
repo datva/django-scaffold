@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Orders, User, Medicine
+from .models import Orders, User, Medicine,FileUpload
 
 
 class OrdersSerializer(serializers.ModelSerializer):
@@ -21,4 +21,9 @@ class MedicineSerializer(serializers.ModelSerializer):
 
 
 
+
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileUpload
+        fields = "__all__"
 

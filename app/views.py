@@ -1,5 +1,21 @@
 from rest_framework import generics
 
+from .models import Orders, User, Medicine, FileUpload
+from .serializers import OrdersSerializer, UserSerializer, MedicineSerializer, FileSerializer
+from rest_framework.decorators import api_view
+from rest_framework import decorators
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework import viewsets
+from rest_framework import parsers
+from rest_framework import response
+from rest_framework import status
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+import requests
+import base64
+
 from .models import Orders, User, Medicine
 from .serializers import OrdersSerializer, UserSerializer, MedicineSerializer
 from rest_framework.decorators import api_view
@@ -75,3 +91,22 @@ def AddMedicineView(request):
 
 
 # Create your views here.
+
+
+
+@api_view(['POST'])
+def upload_file(request):
+    fileup = request.data
+    serializer = FileSerializer(data=fileup)
+
+    if serializer.is_valid():
+        print(fileup)
+        url = "https://api.imgbb.com/1/upload"
+        
+        response = requests.post(url,forms={'image':fileup['pic']}, params={'key':'e95e30d5c7119dd89b08bb065ec06864'})
+        print(response)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

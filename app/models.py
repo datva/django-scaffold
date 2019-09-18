@@ -51,7 +51,12 @@ class ChatLine(models.Model):
     timestamp = models.DateTimeField(auto_now_add = True)
     dest_id = models.CharField(max_length = 36)
 
+class FileUpload(models.Model):
+    name = models.CharField(max_length=200)
+    pic = models.FileField(blank=False, null=False)
+    
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-
-
+    
 
