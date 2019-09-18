@@ -16,6 +16,17 @@ from django.shortcuts import render
 import requests
 import base64
 
+<<<<<<< HEAD
+=======
+from .models import Orders, User, Medicine
+from .serializers import OrdersSerializer, UserSerializer, MedicineSerializer
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.views import APIView
+
+
+>>>>>>> bce161b6aa5c98fcacbdc169247a527b4aa53754
 
 class ListOrdersView(generics.ListAPIView):
     """
@@ -95,7 +106,11 @@ def upload_file(request):
         print(fileup)
         url = "https://api.imgbb.com/1/upload"
         
+<<<<<<< HEAD
         response = requests.post(url,forms={'image':fileup['pic']}, params={'key':''})
+=======
+        response = requests.post(url,forms={'image':fileup['pic']}, params={'key':'e95e30d5c7119dd89b08bb065ec06864'})
+>>>>>>> bce161b6aa5c98fcacbdc169247a527b4aa53754
         print(response)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
