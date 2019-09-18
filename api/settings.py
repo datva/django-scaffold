@@ -27,8 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+<<<<<<< HEAD
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+=======
+
+>>>>>>> f0342b14639d93dce7a707d934b655f0b6fca282
 # Application definition
 
 INSTALLED_APPS = [

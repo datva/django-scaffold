@@ -1,5 +1,6 @@
 from rest_framework import generics
 
+<<<<<<< HEAD
 from .models import Orders, User, Medicine, FileUpload
 from .serializers import OrdersSerializer, UserSerializer, MedicineSerializer, FileSerializer
 from rest_framework.decorators import api_view
@@ -15,6 +16,15 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 import requests
 import base64
+=======
+from .models import Orders, User, Medicine
+from .serializers import OrdersSerializer, UserSerializer, MedicineSerializer
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.views import APIView
+
+>>>>>>> f0342b14639d93dce7a707d934b655f0b6fca282
 
 
 class ListOrdersView(generics.ListAPIView):
