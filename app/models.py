@@ -43,7 +43,6 @@ class Medicine(models.Model):
     order_id = models.CharField(max_length = 36)
 
 class ChatLine(models.Model):
-
     msg_id = models.CharField(max_length = 36)
     order_id = models.CharField(max_length = 36)
     line_text = models.TextField()
