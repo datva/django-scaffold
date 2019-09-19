@@ -1,7 +1,7 @@
 from rest_framework import generics
 
-from .models import Orders, User, Medicine, FileUpload
-from .serializers import OrdersSerializer, UserSerializer, MedicineSerializer, FileSerializer
+from .models import Orders, User, Medicine, FileUpload, ChatLine
+from .serializers import OrdersSerializer, UserSerializer, MedicineSerializer, FileSerializer, ChatLineSerializer
 from rest_framework.decorators import api_view
 from rest_framework import decorators
 from rest_framework.response import Response
@@ -16,17 +16,6 @@ from django.shortcuts import render
 import requests
 import base64
 
-<<<<<<< HEAD
-=======
-from .models import Orders, User, Medicine
-from .serializers import OrdersSerializer, UserSerializer, MedicineSerializer
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.views import APIView
-
-
->>>>>>> bce161b6aa5c98fcacbdc169247a527b4aa53754
 
 class ListOrdersView(generics.ListAPIView):
     """
@@ -43,10 +32,20 @@ class OrderView(APIView):
     """
 
     def get(self, request):
-        orders = Orders.objects.all()
-        serializer_class = OrdersSerializer(orders, many=True)
+        order = Orders.objects.all()
+
+        param = request.GET.items()
+        for i in param:
+            if i[0] == 'user_id':
+                order = Orders.objects.all().filter(user_id=i[1])
+            elif i[0] == 'order_id':
+                order = Orders.objects.all().filter(order_id=i[1])
+            elif i[0] == 'status':
+                order = Orders.objects.all().filter(status=i[1])
+
+        serializer_class = OrdersSerializer(order, many=True)
         return Response(serializer_class.data)
-        #return orders
+
     def post(self, request):
 
         order = request.data
@@ -95,8 +94,29 @@ def AddMedicineView(request):
 
 # Create your views here.
 
+class ChatView(APIView):
+    
+    def get(self, request):
+        sorted_msg = ChatLine.objects.all().order_by('timestamp')
+        param = request.GET.items()
+        for i in param:
+            print(i)
+            chat_msg = ChatLine.objects.all().filter(order_id=i[1])
+            sorted_msg = chat_msg.order_by('timestamp')
+                     
+        serializer_class = ChatLineSerializer(sorted_msg, many=True)
+        return Response(serializer_class.data)
+    
+    def post(self, request):
+        
+        message = request.data
+        serializer_class = ChatLineSerializer(data=message)
+        if serializer_class.is_valid(raise_exception=True):
+            message_saved = serializer_class.save()
+        return Response({"success": "Message '{}' saved successfully"
+            .format(message_saved.msg_id)})
 
-
+    
 @api_view(['POST'])
 def upload_file(request):
     fileup = request.data
@@ -106,11 +126,7 @@ def upload_file(request):
         print(fileup)
         url = "https://api.imgbb.com/1/upload"
         
-<<<<<<< HEAD
         response = requests.post(url,forms={'image':fileup['pic']}, params={'key':''})
-=======
-        response = requests.post(url,forms={'image':fileup['pic']}, params={'key':'e95e30d5c7119dd89b08bb065ec06864'})
->>>>>>> bce161b6aa5c98fcacbdc169247a527b4aa53754
         print(response)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
