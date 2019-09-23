@@ -1,12 +1,19 @@
-from django.urls import path,include
-from .views import ListOrdersView, AddOrderView, UserView, ListMedicinesView, AddMedicineView, OrderView, ChatView
+from django.urls import path, include
+from .views import (
+    ListOrdersView,
+    AddOrderView,
+    UserView,
+    ListMedicinesView,
+    AddMedicineView,
+    OrderView,
+    ChatView
+)
 from rest_framework import routers
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 router = routers.DefaultRouter()
-
 
 
 urlpatterns = [
@@ -16,8 +23,3 @@ urlpatterns = [
     path('medicine/', AddMedicineView),
     path('chat/', ChatView.as_view()),
 ]
-
-
-
-
-   

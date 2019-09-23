@@ -56,9 +56,7 @@ class OrderView(APIView):
         serializer_class.is_valid(raise_exception=True)
         order_saved = serializer_class.save()
         return Response({"success": "Order '{}' created successfully"
-            .format(order_saved.order_id)})
-
-
+                         .format(order_saved.order_id)})
 
 
 @api_view(['POST'])
@@ -70,7 +68,7 @@ def AddOrderView(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    
+
 class UserView(generics.ListAPIView):
     """
     Provides a get method handler.
@@ -78,10 +76,12 @@ class UserView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+
 class ListMedicinesView(generics.ListAPIView):
 
     queryset = Medicine.objects.all()
     serializer_class = MedicineSerializer
+
 
 @api_view(['POST'])
 def AddMedicineView(request):
@@ -93,11 +93,10 @@ def AddMedicineView(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 # Create your views here.
 
 class ChatView(APIView):
-    
+
     def get(self, request):
         sorted_msg = ChatLine.objects.all().order_by('timestamp')
         param = request.GET.items()
@@ -105,18 +104,18 @@ class ChatView(APIView):
             print(i)
             chat_msg = ChatLine.objects.all().filter(order_id=i[1])
             sorted_msg = chat_msg.order_by('timestamp')
-                     
+
         serializer_class = ChatLineSerializer(sorted_msg, many=True)
         return Response(serializer_class.data)
-    
+
     def post(self, request):
-        
+
         message = request.data
         serializer_class = ChatLineSerializer(data=message)
         if serializer_class.is_valid(raise_exception=True):
             message_saved = serializer_class.save()
         return Response({"success": "Message '{}' saved successfully"
-            .format(message_saved.msg_id)})
+                         .format(message_saved.msg_id)})
 
 
 class Authen(APIView):
@@ -127,11 +126,13 @@ class Authen(APIView):
         serializer_class.is_valid(raise_exception=True)
         user = User.objects.filter(user_id=serializer.user_id)
         if user is None:
-            return Response({"failure": "User DNE"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"failure": "User DNE"},
+                            status=status.HTTP_401_UNAUTHORIZED)
 
         m = hashlib.md5()
         m.update(serializer.password)
         if user.password != m.digest():
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         refresh = RefreshToken.for_user(user_id)
-        return Response({"refresh": str(refresh), "access": str(refresh.access_token)})
+        return Response({"refresh": str(refresh),
+                         "access": str(refresh.access_token)})
