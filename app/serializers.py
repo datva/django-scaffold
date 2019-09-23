@@ -5,22 +5,27 @@ from .models import Orders, User, Medicine,FileUpload, ChatLine
 class OrdersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Orders
-        fields = ("order_id", "user_id", "admin_id", "order_time", "delivered_time", "est_delivery_time",
-            "is_upload", "photo_url", "status", "total_price")
-
+        fields = "__all__"
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("user_id", "email_id", "name", "phone_no", "address")
+        fields = "__all__"
 
 class MedicineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Medicine
-        fields = ("med_id", "med_name", "qty", "is_available", "order_id")
+        fields = "__all__"
 
+class ChatLineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChatLine
+        fields = "__all__"
 
-
+class MedicineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MedicineSerializer
+        fields = "__all__"
 
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
