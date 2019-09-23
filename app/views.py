@@ -11,8 +11,9 @@ from rest_framework import viewsets
 from rest_framework import parsers
 from rest_framework import response
 from rest_framework import status
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
+
 import requests
 import base64
 
@@ -47,6 +48,9 @@ class OrderView(APIView):
     def post(self, request):
 
         order = request.data
+        user_id = request.session['user_id']
+        print(user_id)
+        order['user_id'] = user_id
         # Create an article from the above data
         serializer_class = OrdersSerializer(data=order)
         if serializer_class.is_valid(raise_exception=True):
@@ -54,6 +58,10 @@ class OrderView(APIView):
         return Response({"success": "Order '{}' created successfully"
             .format(order_saved.order_id)})
 
+
+def sign_in(request):
+    request.session['user_id'] = "abc"
+    return HttpResponse({"success": "successfully signed in"})  
 
 
 
