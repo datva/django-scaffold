@@ -19,9 +19,6 @@ class MedicineSerializer(serializers.ModelSerializer):
         model = Medicine
         fields = ("med_id", "med_name", "qty", "is_available", "order_id")
 
-
-
-
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = FileUpload
