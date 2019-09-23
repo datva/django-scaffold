@@ -12,7 +12,7 @@ class BaseViewTest(APITestCase):
 
     @staticmethod
     def create_order(email=""):
-        if email != "": 
+        if email != "":
             Orders.objects.create(email=email)
 
     def setUp(self):

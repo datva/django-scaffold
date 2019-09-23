@@ -3,16 +3,16 @@ from django.db import models
 
 class Orders(models.Model):
 
-    order_id = models.CharField(max_length = 36, primary_key = True)
+    order_id = models.CharField(max_length = 36)
     user_id = models.CharField(max_length = 36)
     admin_id = models.CharField(max_length = 36)
     order_time = models.DateTimeField(auto_now_add = True) # Set default time to now
-    delivered_time = models.DateTimeField(auto_now_add = True)
+    delivered_time = models.DateTimeField(auto_now_add = True) 
     est_delivery_time = models.DateTimeField(auto_now_add = True)
     is_upload = models.BooleanField(default = False)
     photo_url = models.TextField(blank = True)
     status = models.CharField(default = "pending", max_length = 10, choices = [("pending", "PENDING"), ("rejected", "REJECTED")
-        ,("approved", "APPROVED"), ("rejected", "REJECTED")])
+        ,("approved", "APPROVED"), ("delivered", "DELIVERED")])
     total_price = models.IntegerField(default = 0)
 
 
@@ -21,7 +21,7 @@ class User(models.Model):
     user_id = models.CharField(max_length = 36)
     email_id = models.CharField(max_length = 36)
     name = models.CharField(max_length = 36)
-    phone_no = models.TextField()
+    phone_no = models.TextField() 
     address = models.TextField()
 
 
@@ -52,8 +52,11 @@ class ChatLine(models.Model):
     dest_id = models.CharField(max_length = 36)
 
 class FileUpload(models.Model):
-
     name = models.CharField(max_length=200)
     pic = models.FileField(blank=False, null=False)
+    
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    
+
