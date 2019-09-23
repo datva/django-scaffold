@@ -13,8 +13,10 @@ from rest_framework import response
 from rest_framework import status
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from rest_framework_simplejwt.tokens import RefreshToken
 import requests
 import base64
+import hashlib
 
 
 class ListOrdersView(generics.ListAPIView):
@@ -51,8 +53,8 @@ class OrderView(APIView):
         order = request.data
         # Create an article from the above data
         serializer_class = OrdersSerializer(data=order)
-        if serializer_class.is_valid(raise_exception=True):
-            order_saved = serializer_class.save()
+        serializer_class.is_valid(raise_exception=True)
+        order_saved = serializer_class.save()
         return Response({"success": "Order '{}' created successfully"
             .format(order_saved.order_id)})
 
@@ -116,20 +118,20 @@ class ChatView(APIView):
         return Response({"success": "Message '{}' saved successfully"
             .format(message_saved.msg_id)})
 
-    
-@api_view(['POST'])
-def upload_file(request):
-    fileup = request.data
-    serializer = FileSerializer(data=fileup)
 
-    if serializer.is_valid():
-        print(fileup)
-        url = "https://api.imgbb.com/1/upload"
-        
-        response = requests.post(url,forms={'image':fileup['pic']}, params={'key':''})
-        print(response)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class Authen(APIView):
 
+    # login
+    def post(self, request):
+        serializer = UserSerializer(data=request.body)
+        serializer_class.is_valid(raise_exception=True)
+        user = User.objects.filter(user_id=serializer.user_id)
+        if user is None:
+            return Response({"failure": "User DNE"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        m = hashlib.md5()
+        m.update(serializer.password)
+        if user.password != m.digest():
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        refresh = RefreshToken.for_user(user_id)
+        return Response({"refresh": str(refresh), "access": str(refresh.access_token)})
