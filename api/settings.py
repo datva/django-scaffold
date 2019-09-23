@@ -87,7 +87,8 @@ DATABASES = {
     }
 }
 
-DATABASES['default'] = dj_database_url.config()
+if os.environ.get("DATABASE_URL") is not None:
+    DATABASES['default'] = dj_database_url.config()
 
 
 # Password validation
