@@ -1,7 +1,14 @@
 from rest_framework import generics
 
 from .models import Orders, User, Medicine, FileUpload, ChatLine
-from .serializers import OrdersSerializer, UserSerializer, MedicineSerializer, FileSerializer, ChatLineSerializer
+from .serializers import (
+    OrdersSerializer, 
+    UserSerializer, 
+    MedicineSerializer,
+    FileSerializer, 
+    ChatLineSerializer,
+    AuthenUserSerializer
+    )
 from rest_framework.decorators import api_view
 from rest_framework import decorators
 from rest_framework.response import Response
@@ -51,9 +58,9 @@ class OrderView(APIView):
     def post(self, request):
 
         order = request.data
-        user_id = request.session['user_id']
-        print(user_id)
-        order['user_id'] = user_id
+        #user_id = request.session['user_id']
+        #print(user_id)
+        #order['user_id'] = user_id
         # Create an article from the above data
         serializer_class = OrdersSerializer(data=order)
         serializer_class.is_valid(raise_exception=True)
@@ -62,20 +69,20 @@ class OrderView(APIView):
             .format(order_saved.order_id)})
 
 
-def sign_in(request):
-    request.session['user_id'] = "abc"
-    return HttpResponse({"success": "successfully signed in"})  
+# def sign_in(request):
+#     request.session['user_id'] = "abc"
+#     return HttpResponse({"success": "successfully signed in"})  
 
 
 
-@api_view(['POST'])
-def AddOrderView(request):
+# @api_view(['POST'])
+# def AddOrderView(request):
 
-    serializer = OrdersSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     serializer = OrdersSerializer(data=request.data)
+#     if serializer.is_valid():
+#         serializer.save()
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserView(generics.ListAPIView):
@@ -131,17 +138,21 @@ class Authen(APIView):
 
     # login
     def post(self, request):
-        serializer = UserSerializer(data=request.body)
-        serializer_class.is_valid(raise_exception=True)
-        user = User.objects.filter(user_id=serializer.user_id)
+        serializer = UserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user_obj = serializer.save()
+        # user = User.objects.filter(user_id=serializer.user_id)
+        user = User.objects.filter(user_id=user_obj.user_id)
         if user is None:
             return Response({"failure": "User DNE"},
                             status=status.HTTP_401_UNAUTHORIZED)
-
         m = hashlib.md5()
-        m.update(serializer.password)
-        if user.password != m.digest():
+        pwd = user_obj.password
+        m.update(pwd.encode('utf-8'))
+        if user[0].password != m.digest():
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         refresh = RefreshToken.for_user(user_id)
         return Response({"refresh": str(refresh),
                          "access": str(refresh.access_token)})
+
+

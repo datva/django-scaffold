@@ -1,15 +1,13 @@
 from django.urls import path,include
-from .views import ListOrdersView, AddOrderView, UserView, ListMedicinesView, AddMedicineView, OrderView, upload_file, sign_in
-from .views import ListOrdersView, AddOrderView, UserView, ListMedicinesView, AddMedicineView, OrderView, upload_file, ChatView
 from django.urls import path, include
 from .views import (
     ListOrdersView,
-    AddOrderView,
     UserView,
     ListMedicinesView,
     AddMedicineView,
     OrderView,
-    ChatView
+    ChatView,
+    Authen
 )
 from rest_framework import routers
 from rest_framework_simplejwt.views import (
@@ -24,10 +22,12 @@ urlpatterns = [
     path('user/', UserView.as_view(), name="user"),
     path('order/', OrderView.as_view()),
     path('medicine/', AddMedicineView),
-    path('upload/', upload_file, name="upload"),
-    path('sign/', sign_in)
 
-    path('chat/', ChatView.as_view())
+    #path('chat/', ChatView.as_view())
     # path('upload/', upload_file, name="upload")
     path('chat/', ChatView.as_view()),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('login/', Authen.as_view())
+
 ]

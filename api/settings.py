@@ -30,6 +30,7 @@ ALLOWED_HOSTS = []
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Application definition
+# AUTH_USER_MODEL = 'app.UserAuth'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -128,3 +129,4 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
+

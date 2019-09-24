@@ -1,10 +1,11 @@
 from django.db import models
-
+#from django.contrib.auth.models import User
 
 class Orders(models.Model):
 
-    order_id = models.CharField(max_length = 36)
-    user_id = models.CharField(max_length = 36)
+    order_id = models.CharField(max_length = 36, primary_key=True)
+    #user_id = models.CharField(max_length = 36)
+    user_id = models.ForeignKey('app.User', on_delete = models.CASCADE)
     admin_id = models.CharField(max_length = 36)
     order_time = models.DateTimeField(auto_now_add = True) # Set default time to now
     delivered_time = models.DateTimeField(auto_now_add = True) 
@@ -15,28 +16,40 @@ class Orders(models.Model):
         ,("approved", "APPROVED"), ("delivered", "DELIVERED")])
     total_price = models.IntegerField(default = 0)
 
+    # @property
+    # def medicines(self):
+    #     return self.medicine_set.all()
+    
+
+class AuthenUser(models.Model):
+
+    user_id = models.CharField(max_length = 36, primary_key=True)
+    password = models.TextField()
+
 
 class User(models.Model):
 
-    user_id = models.CharField(max_length = 36)
+    user_id = models.CharField(max_length = 36, primary_key=True)
     email_id = models.CharField(max_length = 36)
     name = models.CharField(max_length = 36)
     phone_no = models.TextField() 
     address = models.TextField()
+    password = models.TextField()
 
 
 class Admin(models.Model):
 
-    admin_id = models.CharField(max_length = 36)
+    admin_id = models.CharField(max_length = 36, primary_key=True)
     name = models.CharField(max_length = 50)
     phone_no = models.TextField()
     shop_name = models.CharField(max_length = 50)
     shop_address = models.TextField()
 
 
+
 class Medicine(models.Model):
 
-    med_id = models.CharField(max_length = 36, blank = True)
+    med_id = models.CharField(max_length = 36, blank = True, primary_key=True)
     med_name = models.CharField(max_length = 50)
     qty = models.IntegerField(default = 0)
     is_available = models.BooleanField(default = False)
@@ -44,7 +57,7 @@ class Medicine(models.Model):
 
 class ChatLine(models.Model):
 
-    msg_id = models.CharField(max_length = 36)
+    msg_id = models.CharField(max_length = 36, primary_key=True)
     order_id = models.CharField(max_length = 36)
     line_text = models.TextField()
     src_id = models.CharField(max_length = 36)
