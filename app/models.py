@@ -29,8 +29,7 @@ class Orders(models.Model):
 
 class User(models.Model):
 
-    id = models.CharField(max_length=60, primary_key=True)
-    email_id = models.CharField(max_length=60)
+    email_id = models.CharField(max_length=60, unique=True)
     password = models.CharField(max_length=40)
     name = models.CharField(max_length=36)
     phone_no = models.TextField()
