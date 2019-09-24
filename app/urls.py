@@ -6,7 +6,8 @@ from .views import (
     ListMedicinesView,
     AddMedicineView,
     OrderView,
-    ChatView
+    ChatView,
+    AuthenView
 )
 from rest_framework import routers
 from rest_framework_simplejwt.views import (
@@ -22,4 +23,5 @@ urlpatterns = [
     path('order/', OrderView.as_view()),
     path('medicine/', AddMedicineView),
     path('chat/', ChatView.as_view()),
+    path("auth/", AuthenView.as_view()),
 ]

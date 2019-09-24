@@ -29,17 +29,18 @@ class Orders(models.Model):
 
 class User(models.Model):
 
-    user_id = models.CharField(max_length=36)
+    id = models.CharField(max_length=60, primary_key=True)
+    email_id = models.CharField(max_length=60)
     password = models.CharField(max_length=40)
-    email_id = models.CharField(max_length=36)
     name = models.CharField(max_length=36)
     phone_no = models.TextField()
+    is_admin = models.BooleanField(default=False)
     address = models.TextField()
 
 
 class Admin(models.Model):
 
-    admin_id = models.CharField(max_length=36)
+    admin_id = models.CharField(max_length=36, primary_key=True)
     name = models.CharField(max_length=50)
     phone_no = models.TextField()
     shop_name = models.CharField(max_length=50)
@@ -48,7 +49,7 @@ class Admin(models.Model):
 
 class Medicine(models.Model):
 
-    med_id = models.CharField(max_length=36, blank=True)
+    med_id = models.CharField(max_length=36, blank=True, primary_key=True)
     med_name = models.CharField(max_length=50)
     qty = models.IntegerField(default=0)
     is_available = models.BooleanField(default=False)
