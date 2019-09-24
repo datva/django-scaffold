@@ -1,7 +1,16 @@
 from rest_framework import generics
 
 from .models import Orders, User, Medicine, FileUpload, ChatLine
-from .serializers import OrdersSerializer, UserSerializer, MedicineSerializer, FileSerializer, ChatLineSerializer
+from .serializers import (
+    OrdersSerializer, 
+    UserSerializer, 
+    MedicineSerializer,
+    FileSerializer, 
+    ChatLineSerializer,
+    AuthenUserSerializer,
+    UserLoginSerializer,
+    UserSignupSerializer
+    )
 from rest_framework.decorators import api_view
 from rest_framework import decorators
 from rest_framework.response import Response
@@ -11,7 +20,7 @@ from rest_framework import viewsets
 from rest_framework import parsers
 from rest_framework import response
 from rest_framework import status
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from rest_framework_simplejwt.tokens import RefreshToken
 import requests
@@ -51,22 +60,31 @@ class OrderView(APIView):
     def post(self, request):
 
         order = request.data
+        #user_id = request.session['user_id']
+        #print(user_id)
+        #order['user_id'] = user_id
         # Create an article from the above data
         serializer_class = OrdersSerializer(data=order)
         serializer_class.is_valid(raise_exception=True)
         order_saved = serializer_class.save()
         return Response({"success": "Order '{}' created successfully"
-                         .format(order_saved.order_id)})
+            .format(order_saved.order_id)})
 
 
-@api_view(['POST'])
-def AddOrderView(request):
+# def sign_in(request):
+#     request.session['user_id'] = "abc"
+#     return HttpResponse({"success": "successfully signed in"})  
 
-    serializer = OrdersSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# @api_view(['POST'])
+# def AddOrderView(request):
+
+#     serializer = OrdersSerializer(data=request.data)
+#     if serializer.is_valid():
+#         serializer.save()
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserView(generics.ListAPIView):
@@ -141,3 +159,43 @@ class AuthenView(APIView):
         refresh = RefreshToken.for_user(email_id)
         return Response({"refresh": str(refresh),
                          "access": str(refresh.access_token)})
+
+
+
+class LoginView(APIView):
+
+  def post(self, request):
+    serializer = UserLoginSerializer(data=request.data)
+    # serializer.is_valid(raise_exception=True)
+    user = User.objects.filter(email_id=request.data["email_id"])
+     
+    if len(user) < 1:
+      return Response({"message": "User DNE"}, status=status.HTTP_401_UNAUTHORIZED)
+    m = hashlib.md5()
+    m.update(request.data["password"].encode("utf-8"))
+    if user[0].password != str(m.digest()):
+      return Response(status=status.HTTP_401_UNAUTHORIZED)
+    refresh = RefreshToken.for_user(user[0])
+    return Response({"refresh": str(refresh),
+             "access": str(refresh.access_token)})
+
+
+class SignupView(APIView):
+
+  def post(self, request):
+    m = hashlib.md5()
+    m.update(request.data["password"].encode("utf-8"))
+    request.data["password"] = str(m.digest())
+    serializer = UserSignupSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    user = User.objects.filter(email_id=request.data["email_id"])
+
+    # Signup
+    if len(user) < 1:
+      u = serializer.save()
+      refresh = RefreshToken.for_user(u)
+      return Response({"refresh": str(refresh),
+             "access": str(refresh.access_token)})
+
+    else:
+      return Response({"message": "user already exists"})
