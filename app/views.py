@@ -134,24 +134,27 @@ class ChatView(APIView):
                          .format(message_saved.msg_id)})
 
 
-class Authen(APIView):
+class AuthenView(APIView):
 
     # login
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user_obj = serializer.save()
-        # user = User.objects.filter(user_id=serializer.user_id)
-        user = User.objects.filter(user_id=user_obj.user_id)
-        if user is None:
-            return Response({"failure": "User DNE"},
-                            status=status.HTTP_401_UNAUTHORIZED)
+        user = User.objects.filter(email_id=request.data["email_id"])
+        if len(user) < 1:
+            m = hashlib.md5()
+            m.update(request.data["password"].encode("utf-8"))
+            serializer.password = m.digest()
+            u = serializer.save()
+            refresh = RefreshToken.for_user(u)
+            return Response({"refresh": str(refresh),
+                         "access": str(refresh.access_token)})
+
         m = hashlib.md5()
-        pwd = user_obj.password
-        m.update(pwd.encode('utf-8'))
+        m.update(request.data["password"].encode("utf-8"))
         if user[0].password != m.digest():
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-        refresh = RefreshToken.for_user(user_id)
+        refresh = RefreshToken.for_user(email_id)
         return Response({"refresh": str(refresh),
                          "access": str(refresh.access_token)})
 

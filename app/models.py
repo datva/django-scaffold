@@ -29,18 +29,19 @@ class AuthenUser(models.Model):
 
 class User(models.Model):
 
-    user_id = models.CharField(max_length = 36, primary_key=True)
-    email_id = models.CharField(max_length = 36)
-    name = models.CharField(max_length = 36)
-    phone_no = models.TextField() 
+    email_id = models.CharField(max_length=60, unique=True)
+    password = models.CharField(max_length=40)
+    name = models.CharField(max_length=36)
+    phone_no = models.TextField()
+    is_admin = models.BooleanField(default=False)
     address = models.TextField()
     password = models.TextField()
 
 
 class Admin(models.Model):
 
-    admin_id = models.CharField(max_length = 36, primary_key=True)
-    name = models.CharField(max_length = 50)
+    admin_id = models.CharField(max_length=36, primary_key=True)
+    name = models.CharField(max_length=50)
     phone_no = models.TextField()
     shop_name = models.CharField(max_length = 50)
     shop_address = models.TextField()
