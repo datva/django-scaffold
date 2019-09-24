@@ -52,7 +52,8 @@ class OrderView(APIView):
             elif i[0] == 'order_id':
                 order = Orders.objects.all().filter(order_id=i[1])
             elif i[0] == 'status':
-                order = Orders.objects.all().filter(status=i[1])
+                order = Orders.objects.all().filter(status__in = [i[1],'rejected','REJECTED','approved','APPROVED'])
+        print(order)
 
         serializer_class = OrdersSerializer(order, many=True)
         return Response(serializer_class.data)
