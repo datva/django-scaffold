@@ -4,8 +4,8 @@ from django.db import models
 class Orders(models.Model):
 
     order_id = models.CharField(max_length = 36, primary_key=True)
-    #user_id = models.CharField(max_length = 36)
-    user_id = models.ForeignKey('app.User', on_delete = models.CASCADE)
+    user_id = models.CharField(max_length = 36)
+    #user_id = models.ForeignKey('app.User', on_delete = models.CASCADE)
     admin_id = models.CharField(max_length = 36)
     order_time = models.DateTimeField(auto_now_add = True) # Set default time to now
     delivered_time = models.DateTimeField(auto_now_add = True) 
@@ -30,12 +30,11 @@ class AuthenUser(models.Model):
 class User(models.Model):
 
     email_id = models.CharField(max_length=60, unique=True)
-    password = models.CharField(max_length=40)
+    password = models.CharField(max_length=60)
     name = models.CharField(max_length=36)
     phone_no = models.TextField()
     is_admin = models.BooleanField(default=False)
     address = models.TextField()
-    password = models.TextField()
 
 
 class Admin(models.Model):

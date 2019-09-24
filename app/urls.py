@@ -7,7 +7,8 @@ from .views import (
     AddMedicineView,
     OrderView,
     ChatView,
-    AuthenView
+    SignupView,
+    LoginView
 )
 from rest_framework import routers
 from rest_framework_simplejwt.views import (
@@ -28,5 +29,7 @@ urlpatterns = [
     path('chat/', ChatView.as_view()),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path("auth/", AuthenView.as_view())
+    path("signup/", SignupView.as_view()),
+    path("login/", LoginView.as_view())
+       
 ]

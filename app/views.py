@@ -7,7 +7,9 @@ from .serializers import (
     MedicineSerializer,
     FileSerializer, 
     ChatLineSerializer,
-    AuthenUserSerializer
+    AuthenUserSerializer,
+    UserLoginSerializer,
+    UserSignupSerializer
     )
 from rest_framework.decorators import api_view
 from rest_framework import decorators
@@ -159,3 +161,41 @@ class AuthenView(APIView):
                          "access": str(refresh.access_token)})
 
 
+
+class LoginView(APIView):
+
+  def post(self, request):
+    serializer = UserLoginSerializer(data=request.data)
+    # serializer.is_valid(raise_exception=True)
+    user = User.objects.filter(email_id=request.data["email_id"])
+     
+    if len(user) < 1:
+      return Response({"message": "User DNE"}, status=status.HTTP_401_UNAUTHORIZED)
+    m = hashlib.md5()
+    m.update(request.data["password"].encode("utf-8"))
+    if user[0].password != str(m.digest()):
+      return Response(status=status.HTTP_401_UNAUTHORIZED)
+    refresh = RefreshToken.for_user(user[0])
+    return Response({"refresh": str(refresh),
+             "access": str(refresh.access_token)})
+
+
+class SignupView(APIView):
+
+  def post(self, request):
+    m = hashlib.md5()
+    m.update(request.data["password"].encode("utf-8"))
+    request.data["password"] = str(m.digest())
+    serializer = UserSignupSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    user = User.objects.filter(email_id=request.data["email_id"])
+
+    # Signup
+    if len(user) < 1:
+      u = serializer.save()
+      refresh = RefreshToken.for_user(u)
+      return Response({"refresh": str(refresh),
+             "access": str(refresh.access_token)})
+
+    else:
+      return Response({"message": "user already exists"})

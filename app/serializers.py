@@ -27,6 +27,17 @@ class UserSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class UserSignupSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = User
+    fields = "__all__"
+
+class UserLoginSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = User
+    fields = ("email_id", "password")
+
+
 
 class ChatLineSerializer(serializers.ModelSerializer):
     class Meta:
