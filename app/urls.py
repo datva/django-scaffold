@@ -1,7 +1,6 @@
 from django.urls import path,include
 from django.urls import path, include
 from .views import (
-    ListOrdersView,
     UserView,
     ListMedicinesView,
     AddMedicineView,

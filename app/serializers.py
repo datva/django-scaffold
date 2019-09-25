@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Orders, User, Medicine, FileUpload, ChatLine, AuthenUser
+from .models import Orders, User, Medicine, FileUpload, ChatLine
 
 
 
@@ -11,15 +11,14 @@ class MedicineSerializer(serializers.ModelSerializer):
 
 class OrdersSerializer(serializers.ModelSerializer):
 
+    medicines = MedicineSerializer(many = True)
     class Meta:
         model = Orders
-        fields = "__all__"
-        depth = 1
+        fields = (
+            "order_id",
+            "medicines"
+            )
 
-class AuthenUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AuthenUser
-        fields = "__all__"
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
