@@ -7,7 +7,6 @@ from .serializers import (
     MedicineSerializer,
     FileSerializer, 
     ChatLineSerializer,
-    AuthenUserSerializer,
     UserLoginSerializer,
     UserSignupSerializer
     )
@@ -26,14 +25,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 import requests
 import base64
 import hashlib
-
-
-class ListOrdersView(generics.ListAPIView):
-    """
-    Provides a get method handler.
-    """
-    queryset = Orders.objects.all()
-    serializer_class = OrdersSerializer
 
 
 class OrderView(APIView):
@@ -71,21 +62,6 @@ class OrderView(APIView):
         return Response({"success": "Order '{}' created successfully"
             .format(order_saved.order_id)})
 
-
-# def sign_in(request):
-#     request.session['user_id'] = "abc"
-#     return HttpResponse({"success": "successfully signed in"})  
-
-
-
-# @api_view(['POST'])
-# def AddOrderView(request):
-
-#     serializer = OrdersSerializer(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserView(generics.ListAPIView):
@@ -135,31 +111,6 @@ class ChatView(APIView):
             message_saved = serializer_class.save()
         return Response({"success": "Message '{}' saved successfully"
                          .format(message_saved.msg_id)})
-
-
-class AuthenView(APIView):
-
-    # login
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = User.objects.filter(email_id=request.data["email_id"])
-        if len(user) < 1:
-            m = hashlib.md5()
-            m.update(request.data["password"].encode("utf-8"))
-            serializer.password = m.digest()
-            u = serializer.save()
-            refresh = RefreshToken.for_user(u)
-            return Response({"refresh": str(refresh),
-                         "access": str(refresh.access_token)})
-
-        m = hashlib.md5()
-        m.update(request.data["password"].encode("utf-8"))
-        if user[0].password != m.digest():
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        refresh = RefreshToken.for_user(email_id)
-        return Response({"refresh": str(refresh),
-                         "access": str(refresh.access_token)})
 
 
 
