@@ -1,17 +1,111 @@
 import uuid
+import jwt
+
+from datetime import datetime, timedelta
+
+from django.conf import settings
 from django.db import models
+from django.contrib.auth.models import (
+    AbstractBaseUser, BaseUserManager, PermissionsMixin
+)
 
 #from django.contrib.auth.models import User
 
-class User(models.Model):
+class UserManager(BaseUserManager):
+    """
+    Django requires that custom users define their own Manager class. By
+    inheriting from `BaseUserManager`, we get a lot of the same code used by
+    Django to create a `User`. 
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email_id = models.CharField(max_length=60, unique=True)
+    All we have to do is override the `create_user` function which we will use
+    to create `User` objects.
+    """
+
+    def create_user(self, username, email, password=None):
+        """Create and return a `User` with an email, username and password."""
+        if username is None:
+            raise TypeError('Users must have a username.')
+
+        if email is None:
+            raise TypeError('Users must have an email address.')
+
+        user = self.model(username=username, email=self.normalize_email(email))
+        user.set_password(password)
+        user.save()
+
+        return user
+
+    def create_superuser(self, username, email, password):
+        """
+        Create and return a `User` with superuser (admin) permissions.
+        """
+        if password is None:
+            raise TypeError('Superusers must have a password.')
+
+        user = self.create_user(username, email, password)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
+
+        return user
+
+
+class User(AbstractBaseUser, PermissionsMixin):
+    
+    email_id = models.EmailField(db_index=True, unique=True)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     password = models.CharField(max_length=60)
-    name = models.CharField(max_length=36)
+    name = models.TextField()
     phone_no = models.TextField()
-    is_admin = models.BooleanField(default=False)
     address = models.TextField()
+    # More fields required by Django when specifying a custom user model.
+
+    # The `USERNAME_FIELD` property tells us which field we will use to log in.
+    # In this case we want it to be the email field.
+    USERNAME_FIELD = 'email_id'
+    REQUIRED_FIELDS = ['password', 'name', 'phone_no', 'address']
+
+    # Tells Django that the UserManager class defined above should manage
+    # objects of this type.
+    objects = UserManager()
+
+    def __str__(self):
+        """
+        Returns a string representation of this `User`.
+
+        This string is used when a `User` is printed in the console.
+        """
+        return self.email_id
+
+    @property
+    def token(self):
+        """
+        Allows us to get a user's token by calling `user.token` instead of
+        `user.generate_jwt_token().
+
+        The `@property` decorator above makes this possible. `token` is called
+        a "dynamic property".
+        """
+        return self._generate_jwt_token()
+
+
+    def _generate_jwt_token(self):
+        """
+        Generates a JSON Web Token that stores this user's ID and has an expiry
+        date set to 60 days into the future.
+        """
+        dt = datetime.now() + timedelta(days=60)
+
+        token = jwt.encode({
+            'id': self.pk,
+            'exp': int(dt.strftime('%S'))
+        }, settings.SECRET_KEY, algorithm='HS256')
+
+        return token.decode('utf-8')
+
 
 
 class Orders(models.Model):

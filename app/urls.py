@@ -18,7 +18,6 @@ router = routers.DefaultRouter()
 
 
 urlpatterns = [
-    #path('orders/', ListOrdersView.as_view(), name="orders-all"),
     path('user/', UserView.as_view(), name="user"),
     path('order/', OrderView.as_view()),
     path('medicine/', AddMedicineView),

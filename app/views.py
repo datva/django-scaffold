@@ -11,6 +11,8 @@ from .serializers import (
     UserSignupSerializer
     )
 from rest_framework.decorators import api_view
+from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import decorators
 from rest_framework.response import Response
 from rest_framework import status
@@ -19,8 +21,11 @@ from rest_framework import viewsets
 from rest_framework import parsers
 from rest_framework import response
 from rest_framework import status
+
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
+
+
 from rest_framework_simplejwt.tokens import RefreshToken
 import requests
 import base64
@@ -32,6 +37,7 @@ class OrderView(APIView):
     """
     GET and POST orders at /order
     """
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         order = Orders.objects.all()
@@ -63,11 +69,14 @@ class OrderView(APIView):
             .format(order_saved.order_id)})
 
 
-
 class UserView(generics.ListAPIView):
     """
     Provides a get method handler.
     """
+    permission_classes = (IsAuthenticated,)
+    #permission_classes = (AllowAny,)
+    #renderer_classes = (UserJSONRenderer,)
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -91,6 +100,8 @@ def AddMedicineView(request):
 # Create your views here.
 
 class ChatView(APIView):
+    
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         sorted_msg = ChatLine.objects.all().order_by('timestamp')
