@@ -4,7 +4,8 @@ from .views import (
     UserView,
     ListMedicinesView,
     AddMedicineView,
-    OrderView,
+    AdminOrderView,
+    UserOrderView,
     ChatView,
     SignupView,
     LoginView
@@ -19,7 +20,10 @@ router = routers.DefaultRouter()
 
 urlpatterns = [
     path('user/', UserView.as_view(), name="user"),
-    path('order/', OrderView.as_view()),
+    path('admin/order/', AdminOrderView.as_view()),
+    path('user/order/', UserOrderView.as_view()),
+    path('admin/order/', AdminOrderView.as_view()),
+
     path('medicine/', AddMedicineView),
 
     #path('chat/', ChatView.as_view())

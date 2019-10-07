@@ -21,28 +21,59 @@ class UserManager(BaseUserManager):
     to create `User` objects.
     """
 
-    def create_user(self, username, email, password=None):
+    # def create_user(self, username, email, password=None):
+    #     """Create and return a `User` with an email, username and password."""
+    #     if username is None:
+    #         raise TypeError('Users must have a username.')
+
+    #     if email is None:
+    #         raise TypeError('Users must have an email address.')
+
+    #     user = self.model(username=username, email=self.normalize_email(email))
+    #     user.set_password(password)
+    #     user.save()
+
+    #     return user
+
+    def create_user(self, email_id, name, address, phone_no, password):
         """Create and return a `User` with an email, username and password."""
-        if username is None:
-            raise TypeError('Users must have a username.')
+        # if username is None:
+        #     raise TypeError('Users must have a username.')
 
-        if email is None:
-            raise TypeError('Users must have an email address.')
+        # if email is None:
+        #     raise TypeError('Users must have an email address.')
 
-        user = self.model(username=username, email=self.normalize_email(email))
+        user = self.model(email_id=email_id, password = password, address = address, phone_no = phone_no, name = name)
         user.set_password(password)
         user.save()
 
         return user
 
-    def create_superuser(self, username, email, password):
+    # def create_superuser(self, username, email, password):
+    #     """
+    #     Create and return a `User` with superuser (admin) permissions.
+    #     """
+    #     if password is None:
+    #         raise TypeError('Superusers must have a password.')
+
+    #     user = self.create_user(username, email, password)
+    #     user.is_superuser = True
+    #     user.is_staff = True
+    #     user.save()
+
+    #     return user
+    def create_superuser(self, email_id, name, phone_no, address, password, username=None, email=None):
         """
         Create and return a `User` with superuser (admin) permissions.
         """
-        if password is None:
-            raise TypeError('Superusers must have a password.')
+        print("username is ", username)
+        print("email is ", email)
+        print("password is ", password)
 
-        user = self.create_user(username, email, password)
+        # if password is None:
+        #     raise TypeError('Superusers must have a password.')
+
+        user = self.create_user(email_id,name, address, phone_no, password)
         user.is_superuser = True
         user.is_staff = True
         user.save()
@@ -66,7 +97,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     # The `USERNAME_FIELD` property tells us which field we will use to log in.
     # In this case we want it to be the email field.
     USERNAME_FIELD = 'email_id'
-    REQUIRED_FIELDS = ['password', 'name', 'phone_no', 'address']
+    REQUIRED_FIELDS = ['password', 'name', 'phone_no', 'address', 'is_staff']
 
     # Tells Django that the UserManager class defined above should manage
     # objects of this type.
@@ -114,7 +145,7 @@ class Orders(models.Model):
     order_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     #user_id = models.CharField(max_length = 36)
     user_id = models.ForeignKey(User, on_delete = models.CASCADE, db_column = "user_id")
-    admin_id = models.CharField(max_length = 36)
+    #admin_id = models.CharField(max_length = 36)
     order_time = models.DateTimeField(auto_now_add = True) # Set default time to now
     delivered_time = models.DateTimeField(auto_now_add = True) 
     est_delivery_time = models.DateTimeField(auto_now_add = True)
@@ -130,11 +161,19 @@ class Orders(models.Model):
 
 class Admin(models.Model):
 
-    admin_id = models.CharField(max_length=36, primary_key=True)
-    name = models.CharField(max_length=50)
+    admin_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.TextField()
     phone_no = models.TextField()
-    shop_name = models.CharField(max_length = 50)
-    shop_address = models.TextField()
+    shop_name = models.TextField(blank = True)
+    shop_address = models.TextField(blank = True)
+
+class AdminOrders(models.Model):
+    admin_name = models.CharField(max_length = 50, primary_key=True)   
+    #admin_name = models.TextField() 
+    #current_orders = models.ManyToManyField(Orders)
+    #recent_orders = models.ManyToManyField(Orders)
+
+
 
 
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Orders, User, Medicine, FileUpload, ChatLine
+from .models import Orders, User, Medicine, FileUpload, ChatLine, Admin, AdminOrders
 
 
 
@@ -11,13 +11,14 @@ class MedicineSerializer(serializers.ModelSerializer):
 
 class OrdersSerializer(serializers.ModelSerializer):
 
-    medicines = MedicineSerializer(many = True)
+    #medicines = MedicineSerializer(many = True)
     class Meta:
         model = Orders
-        fields = (
-            "order_id",
-            "medicines"
-            )
+        # fields = (
+        #     "order_id"
+        #     #"medicines"
+        #     )
+        fields = "__all__"
 
 class UserSerializer(serializers.ModelSerializer):
     """Handles serialization and deserialization of User objects."""
@@ -48,6 +49,35 @@ class UserSerializer(serializers.ModelSerializer):
 
         return instance
 
+class AdminPageSerializer(serializers.ModelSerializer):
+    current_orders = OrdersSerializer(many=True, read_only=True)
+    recent_orders = OrdersSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = AdminOrders
+        fields = ('current_orders', 'recent_orders')
+
+    def create(self, validated_data):
+        current_orders = validated_data.pop('current_orders')
+        recent_orders = validated_data.pop('recent_orders')
+        admin_orders = AdminOrders.objects.create(**validated_data)
+
+        for curr_ord in current_orders:
+            curr_ord, created = Orders.objects.get_or_create(status='pending')
+            admin_orders.current_orders.add(curr_ord)
+
+
+        for rec_ord in recent_orders:
+            rec_ord, created = Orders.objects.get_or_create(status='delivered')
+            admin_orders.recent_orders.add(rec_ord)
+
+
+            
+        # for ingredient in ingredients_data:
+        #     ingredient, created = Ingredient.objects.get_or_create(name=ingredient['name'])
+        #     recipe.ingredients.add(ingredient)
+
+        return admin_orders
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
