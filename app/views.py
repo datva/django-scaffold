@@ -1,6 +1,6 @@
 from rest_framework import generics
 
-from .models import Orders, User, Medicine, FileUpload, ChatLine, Admin, AdminOrders
+from .models import Orders, User, Medicine, FileUpload, ChatLine, Admin
 from .serializers import (
     OrdersSerializer, 
     UserSerializer, 
@@ -8,8 +8,7 @@ from .serializers import (
     FileSerializer, 
     ChatLineSerializer,
     UserLoginSerializer,
-    UserSignupSerializer,
-    AdminPageSerializer
+    UserSignupSerializer
     )
 from rest_framework.decorators import api_view
 from rest_framework.generics import RetrieveUpdateAPIView
@@ -42,24 +41,32 @@ class AdminOrderView(APIView):
     permission_classes = (IsAdminUser,)
 
     def get(self, request):
-        order = Orders.objects.all()
+        
+        current_ord = Orders.objects.all().filter(status__in = ['pending','approved'])
+        recent_ord = Orders.objects.all().filter(status__in = ['delivered','rejected'])
+        serializer_curr = OrdersSerializer(current_ord, many=True)
+        serializer_rec = OrdersSerializer(recent_ord, many=True)
+        admin_orders = {}
+        admin_orders["current_orders"] = serializer_curr.data
+        admin_orders["recent_orders"] = serializer_rec.data
+        
+        return Response(admin_orders)
+        
+
+class SingleOrderView(APIView):
+
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        order = Orders.objects.all().filter(user_id=request.user.id)
         param = request.GET.items()
         params_available = False
+
         for i in param:
             params_available = True
             
             if i[0] == 'order_id':
                 order = Orders.objects.all().filter(order_id=i[1])
         
-        if (params_available == False):
-            print("admin view")
-            current_ord = Orders.objects.all().filter(status__in = ['pending','approved'])
-            recent_ord = Orders.objects.all().filter(status__in = ['delivered','rejected'])
-            print (current_ord.values())
-            admin_orders = {'current_orders' : list(current_ord.values()), 'recent_orders': list(recent_ord.values())}
-            return Response(admin_orders)
-            
-        print(order)
         serializer_class = OrdersSerializer(order, many=True)
         return Response(serializer_class.data)
 
@@ -72,31 +79,16 @@ class UserOrderView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        order = Orders.objects.all()
+        order = Orders.objects.all().filter(user_id=request.user.id)
         param = request.GET.items()
         params_available = False
+        print(request.user.token)
+
         for i in param:
             params_available = True
-            if i[0] == 'user_id':
-                order = Orders.objects.all().filter(user_id=i[1])
-            elif i[0] == 'order_id':
-                order = Orders.objects.all().filter(order_id=i[1])
-            # elif i[0] == 'status':
-            #     order = Orders.objects.all().filter(status__in = [i[1],'rejected','REJECTED','approved','APPROVED'])
-                
-        
-        # if (params_available == False):
-        #     print("admin view")
-        #     current_ord = Orders.objects.all().filter(status__in = ['pending','approved'])
-        #     recent_ord = Orders.objects.all().filter(status__in = ['delivered','rejected'])
-        #     # #user = request.user
-        #     # admin = Admin(name = "admin")
-        #     # admin["current_orders"] = current_ord
-        #     # admin["recent_orders"] = recent_ord
-        #     print (current_ord.values())
-        #     admin_orders = {'current_orders' : list(current_ord.values()), 'recent_orders': list(recent_ord.values())}
-        #     return Response(admin_orders)
             
+            if i[0] == 'order_id':
+                order = Orders.objects.all().filter(order_id=i[1])
         
         print(order)
 
@@ -104,21 +96,19 @@ class UserOrderView(APIView):
         return Response(serializer_class.data)
 
     def post(self, request):
+        
+        data = request.data
+        data["user_id"] = request.user.id
+        print (data)
+        serializer = OrdersSerializer(data=data)
+        print (serializer)
 
-        order = request.data
-        print(request.user)
-        print(request.user.name)
-        print(request.user.id)
-        #user_id = request.session['user_id']
-        #print(user_id)
-        #order['user_id'] = user_id
-        # Create an article from the above data
-        order["user_id"] = request.user.id
-        serializer_class = OrdersSerializer(data=order)
-        serializer_class.is_valid(raise_exception=True)
-        order_saved = serializer_class.save()
-        return Response({"success": "Order '{}' created successfully"
-            .format(order_saved.order_id)})
+        if serializer.is_valid():
+
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+        
 
 
 class UserView(generics.ListAPIView):
@@ -197,7 +187,7 @@ class LoginView(APIView):
     m.update(request.data["password"].encode("utf-8"))
     if user[0].password != str(m.digest()):
       return Response(status=status.HTTP_401_UNAUTHORIZED)
-      
+
     refresh = RefreshToken.for_user(user[0])
     return Response({"refresh": str(refresh),
              "access": str(refresh.access_token)})

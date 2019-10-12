@@ -6,6 +6,7 @@ from .views import (
     AddMedicineView,
     AdminOrderView,
     UserOrderView,
+    SingleOrderView,
     ChatView,
     SignupView,
     LoginView
@@ -23,7 +24,7 @@ urlpatterns = [
     path('admin/order/', AdminOrderView.as_view()),
     path('user/order/', UserOrderView.as_view()),
     path('admin/order/', AdminOrderView.as_view()),
-
+    path('order/', SingleOrderView.as_view()),
     path('medicine/', AddMedicineView),
 
     #path('chat/', ChatView.as_view())

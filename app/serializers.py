@@ -1,24 +1,63 @@
 from rest_framework import serializers
-from .models import Orders, User, Medicine, FileUpload, ChatLine, Admin, AdminOrders
+from django.db import models
+import uuid
+from .models import Orders, User, Medicine, FileUpload, ChatLine, Admin
 
 
 
 class MedicineSerializer(serializers.ModelSerializer):
+    #id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = serializers.IntegerField(required=False)
     class Meta:
         model = Medicine
-        fields = "__all__"
+        fields = (
+            "id",
+            "med_name",
+            "qty",
+            "is_available",
+            "order_id"
+            )
+        read_only_fields = ("order_id",)
 
 
 class OrdersSerializer(serializers.ModelSerializer):
 
-    #medicines = MedicineSerializer(many = True)
+    medicines = MedicineSerializer(many = True)
     class Meta:
         model = Orders
-        # fields = (
-        #     "order_id"
-        #     #"medicines"
-        #     )
-        fields = "__all__"
+        fields = (
+            "status",
+            "medicines",
+            "user_id",
+            "order_id"
+            )
+        #fields = ('medicines',)
+        #fields = "__all__"
+
+    # def create(self, validated_data):
+    #     medicine_dict = validated_data['medicines']
+    #     order = Orders.objects.create(**validated_data)
+    #     medicine_dict['order'] = order
+    #     Medicine.objects.create(**medicine_dict)
+    #     return order
+    def create(self, validated_data):
+        medicines = validated_data.pop('medicines')
+        order = Orders.objects.create(**validated_data)
+        for med in medicines:
+            Medicine.objects.create(**med, order_id = order)
+        return order
+    # def create(self, validated_data):
+    #     medicines = validated_data.pop('medicines')
+    #     med_ord = Orders.objects.create(**validated_data)
+
+    #     for med in medicines:
+    #         med, created = Orders.objects.get_or_create(status='pending')
+    #         admin_orders.current_orders.add(curr_ord)
+
+
+    #     for rec_ord in recent_orders:
+    #         rec_ord, created = Orders.objects.get_or_create(status='delivered')
+    #         admin_orders.recent_orders.add(rec_ord)
 
 class UserSerializer(serializers.ModelSerializer):
     """Handles serialization and deserialization of User objects."""
@@ -48,15 +87,16 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
-
+"""
 class AdminPageSerializer(serializers.ModelSerializer):
-    current_orders = OrdersSerializer(many=True, read_only=True)
-    recent_orders = OrdersSerializer(many=True, read_only=True)
+    current_orders = OrdersSerializer(many=True)
+    recent_orders = OrdersSerializer(many=True)
+    id = serializers.IntegerField(required=False)
 
     class Meta:
-        model = AdminOrders
-        fields = ('current_orders', 'recent_orders')
-
+        model = Orders
+        fields = ('current_orders', 'recent_orders', 'id',)
+    
     def create(self, validated_data):
         current_orders = validated_data.pop('current_orders')
         recent_orders = validated_data.pop('recent_orders')
@@ -71,14 +111,8 @@ class AdminPageSerializer(serializers.ModelSerializer):
             rec_ord, created = Orders.objects.get_or_create(status='delivered')
             admin_orders.recent_orders.add(rec_ord)
 
-
-            
-        # for ingredient in ingredients_data:
-        #     ingredient, created = Ingredient.objects.get_or_create(name=ingredient['name'])
-        #     recipe.ingredients.add(ingredient)
-
         return admin_orders
-
+""" 
 
 class UserSignupSerializer(serializers.ModelSerializer):
   class Meta:
@@ -98,10 +132,10 @@ class ChatLineSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class MedicineSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MedicineSerializer
-        fields = "__all__"
+# class MedicineSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = MedicineSerializer
+#         fields = "__all__"
 
 
 class FileSerializer(serializers.ModelSerializer):
